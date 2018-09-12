@@ -36,6 +36,11 @@ class irTx{
             console.log('irdClass.js received a command from server:');
             console.log(dta);
         });
+
+        this._stream.on('error', function(err){
+            console.log('Error connecting to Server. Detail follows:');
+            console.log(err);
+        })
     }
 
     sendValue(valueToSend){
