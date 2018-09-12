@@ -40,11 +40,8 @@ class irTx{
         this._stream.on('error', function(err){
             console.log('Error connecting to irdTxServer. Detail follows:');
             console.log(err);
-            console.log('Will retry server connection in 60 seconds');
-            setTimeout(function(){
-                console.log('Retrying conneciton to server at IPC ' + ipcPath);
-                this._stream.connect(ipcPath);
-            },60000);
+            console.log('check server and try again');
+            process.exit(1);
         })
     }
 
