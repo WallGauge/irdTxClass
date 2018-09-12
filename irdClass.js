@@ -30,6 +30,11 @@ class irTx{
         this._calibrationTable = calibrationTable;
         this._stream = net.connect(ipcPath);
         this._lastEncodedComnmand = 0;
+
+        this._stream.on('data', function(dtaFromServer){
+            console.log('irdClass.js received a command from server:');
+            console.log(dtaFromServer);
+        });
     }
 
     sendValue(valueToSend){
