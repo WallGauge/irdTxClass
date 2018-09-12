@@ -32,8 +32,9 @@ class irTx{
         this._lastEncodedComnmand = 0;
 
         this._stream.on('data', function(dtaFromServer){
+            var dta = dtaFromServer.toString();
             console.log('irdClass.js received a command from server:');
-            console.log(dtaFromServer);
+            console.log(dta);
         });
     }
 
