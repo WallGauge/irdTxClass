@@ -25,7 +25,7 @@ setInterval(function(){
     if(valToSend == 100){
         valToSend = 1;
     } else {
-        valToSend++
+        valToSend = valToSend + 10;
     }
     console.log('Adding value of' + valToSend + '% to command queue to be sent to gauge with the address of ' + deviceAddress);
     irTX.sendValue(valToSend);
