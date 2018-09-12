@@ -33,12 +33,18 @@ class irTx{
 
         this._stream.on('data', function(dtaFromServer){
             var dta = dtaFromServer.toString();
-            console.log('irdClass.js received a command from server:');
-            console.log(dta);
+            if(dta == '__disconnect'){
+                console.log('irdTxServer issued a disconnect!!')
+                this._stream.end();
+                process.exit(0);
+            } else {
+                console.log('Received an unknown command from irdTxServer:');
+                console.log(dta);
+            }
         });
 
         this._stream.on('error', function(err){
-            console.log('Error connecting to irdTxServer. Detail follows:');
+            console.log('Error with connection to irdTxServer. Detail follows:');
             console.log(err);
             console.log('check server and try again');
             process.exit(1);
@@ -100,9 +106,6 @@ class irTx{
         return x;
     }
       
-    txCmdNow(encodedCommand = 0){
-        tx(encodedCommand, this._pwmPin, this._modFrequency)
-    }
 
     cmdQueueAdd(encodedCommand, txCount = 14, modFreq = this._modFrequency, pwmPin = this._pwmPin){
         console.log('sending new cmdQueueAdd to irdServer.');
