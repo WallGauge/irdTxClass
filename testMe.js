@@ -1,8 +1,8 @@
 var irTransmitter =     require('./irdClass.js');
 var package =           require('./package.json');
 
-const deviceAddress = 1;
-const calibration = [[0,0],[25,155],[50,310],[75,460],[100,620]];
+const deviceAddress = 170;                                          // 170 = broadcast address (all gauges withing range will respond)
+const calibration = [[0,0],[25,155],[50,310],[75,460],[100,620]];   // This is a generic calibration table from 0 to 100
 
 
 var irTX = new irTransmitter(deviceAddress, calibration);
