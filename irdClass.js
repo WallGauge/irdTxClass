@@ -35,7 +35,8 @@ class irTx{
             var dta = dtaFromServer.toString();
             if(dta == '__disconnect'){
                 console.log('irdTxServer issued a disconnect!!')
-                return (function(){
+                return(function(){
+                    console.log('fin...');
                     this._stream.end();
                     process.exit(0);
                 });
