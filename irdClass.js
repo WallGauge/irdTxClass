@@ -43,7 +43,7 @@ class irTx{
             console.log('Will retry server connection in 60 seconds');
             setTimeout(function(){
                 console.log('Retrying conneciton to server at IPC ' + ipcPath);
-                net.connect(ipcPath);
+                _stream.connect(ipcPath);
             },60000);
         })
     }
