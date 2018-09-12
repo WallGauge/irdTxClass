@@ -172,34 +172,3 @@ function findLowIndex(target, calibrationTable=[[0,0],[50,250]]) {
 
 
 module.exports = irTx;
-
-
-
-
-    // Connect to server.
-    console.log("Connecting to server.");
-    client = net.createConnection(SOCKETFILE)
-
-    .on('connect', ()=>{
-        console.log("Connected.");
-    })
-    // Messages are buffers. use toString
-    .on('data', function(data) {
-        data = data.toString();
-
-        if(data === '__boop'){
-            console.info('Server sent boop. Confirming our snoot is booped.');
-            client.write('__snootbooped');
-            return;
-        }
-        if(data === '__disconnect'){
-            console.log('Server disconnected.')
-            return cleanup();
-        }
-
-        // Generic message handler
-        console.info('Server:', data)
-    })
-    .on('error', function(data) {
-        console.error('Server not active.'); process.exit(1);
-    });
