@@ -1,0 +1,22 @@
+{
+  "name": "irdtxclass",
+  "version": "0.0.1",
+  "description": "Sends data to irdServer over UNIX IPC",
+  "main": "irdClass.js",
+  "scripts": {
+    "test": "echo \"node testMe.js for quick usage test\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RuckerGauge/irdTxClass.git"
+  },
+  "author": "John Rucker",
+  "license": "MIT",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+
+  }
+}
