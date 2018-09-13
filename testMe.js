@@ -19,7 +19,12 @@ var pVer = package.version;
 console.log('class ver = '+ pVer);
 
 console.log('adding value of 50% to command queue to be sent to gauge with the address of ' + deviceAddress);
-irTX.sendValue(50);
+if(irTX.isServerConncted()){
+    irTX.sendValue(50);
+} else {
+    console.log('Server not connected yet...')
+}
+
 var valToSend = 0;
 setInterval(function(){
     if(valToSend == 100){

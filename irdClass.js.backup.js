@@ -2,10 +2,8 @@ var net =           require('net');
 var cp =            require('child_process');
 var serverCfg =     require('./serverConfig.json');
 
-var ipcPath = serverCfg.serverPathForUNIX;
-//var ipcPath = serverCfg.serverPathForWindows;
-var stream = {};
-var serverConnected = false;
+//var ipcPath = serverCfg.serverPathForUNIX;
+var ipcPath = serverCfg.serverPathForWindows;
 
 const hardwarePwmBcmPin = 18;
 const modulationFreq = 33000;
@@ -22,9 +20,8 @@ const rgaugeDfltCmds = {
     Set_Raw_Stepper_Value   :8,
 }
 
-connectToServer();
-
 //Class Setup
+
 class irTx{
     constructor(deviceAddress = 1, calibrationTable = calibration, frq = modulationFreq, pin = hardwarePwmBcmPin, dftCmds = rgaugeDfltCmds){
         this._pwmPin = pin;
@@ -33,6 +30,27 @@ class irTx{
         this._deviceAddress = deviceAddress;
         this._calibrationTable = calibrationTable;
         this._lastEncodedComnmand = 0;
+        this._stream = net.connect(ipcPath);
+
+        this._stream.on('data', function(dtaFromServer){
+            var dta = dtaFromServer.toString();
+            if(dta == '__disconnect'){
+                console.log('irdTxServer issued a disconnect!!')
+                //this._stream.end();
+                process.exit(0);
+
+            } else {
+                console.log('Received an unknown command from irdTxServer:');
+                console.log(dta);
+            }
+        });
+
+        this._stream.on('error', function(err){
+            console.log('Error with connection to irdTxServer. Detail follows:');
+            console.log(err);
+            console.log('check server and try again');
+            process.exit(1);
+        })
     }
 
     sendValue(valueToSend){
@@ -90,34 +108,33 @@ class irTx{
         return x;
     }
       
+
     cmdQueueAdd(encodedCommand, txCount = 14, modFreq = this._modFrequency, pwmPin = this._pwmPin){
         console.log('sending new cmdQueueAdd to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'addCmd', encodedCommand:encodedCommand, txCount:txCount, modFreq:modFreq, pwmPin:pwmPin});
-        stream.write(cmdAsStr);
+        this._stream.write(cmdAsStr);
     }
 
     cmdQueueRemove(encodedCommandToRemove){
         console.log('sending new cmdQueueRemove to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'removeCmd', encodedCommand:encodedCommandToRemove});
-        stream.write(cmdAsStr);
+        this._stream.write(cmdAsStr);
     }
 
     cmdQueueClear(){
         console.log('sending new cmdQueueClear to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'clearCmdQueue'});
-        stream.write(cmdAsStr);
+        this._stream.write(cmdAsStr);
     }
 
     cmdQueueDump(){
         console.log('sending new cmdQueueDump to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'dumpCmdQueue'});
-        stream.write(cmdAsStr);
-    }
-
-    isServerConncted(){
-        return serverConnected;
+        this._stream.write(cmdAsStr);
     }
 }
+
+
 
 function getCalibratedValue(intVal=0, calibrationTable=[[0,0],[50,250]]){ 
     var cTable = calibrationTable;
@@ -154,49 +171,5 @@ function findLowIndex(target, calibrationTable=[[0,0],[50,250]]) {
     }
 }
 
-/*
-    Stream setup for irTxServer over UNIX IPC 
-*/
-function connectToServer(){
-    console.log('Conneting to infrared tx server on IPC path ' + ipcPath);
-    stream = net.connect(ipcPath);
-
-    stream.on('data', function(dtaFromServer){
-        var dta = dtaFromServer.toString();
-        switch(dta){
-            case '__disconnect':
-                serverConnected = false;
-                console.log('irdTxServer issued a disconnect!!')
-                process.exit(0);
-                break;
-
-            case '__connected':
-                serverConnected = true;
-                console.log('irdTxServer connected!');
-                break;
-
-            default:
-                console.log('Received an unknown command from irdTxServer:');
-                console.log(dta);
-                break;
-        }
-    });
-
-    stream.on('error', function(err){
-        serverConnected = false;
-        console.log('Error with connection to irdTxServer. Detail follows:');
-        console.log(err);
-        console.log('check server and try again');
-        return reconnectServer();
-    })
-}
-
-function reconnectServer(){
-    var secToReconnect = 15;
-    console.log('Reconnectiong server in ' + secToReconnect + ' seconds.');
-    setTimeout(function(){
-        connectToServer();
-    }, secToReconnect * 1000);
-}
 
 module.exports = irTx;

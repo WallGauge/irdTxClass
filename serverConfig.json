@@ -1,4 +1,5 @@
 {
     "serverPath":"/tmp/irdServer.sock",
-    "serverPathForWindows":"\\\\.\\pipe\\.irdServer"
+    "serverPathForWindows":"\\\\.\\pipe\\.irdServer",
+    "serverPathForUNIX":"/tmp/irdServer.sock"
 }
