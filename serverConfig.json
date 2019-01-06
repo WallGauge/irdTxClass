@@ -1,5 +1,4 @@
 {
-    "serverPath":"/tmp/irdServer.sock",
     "serverPathForWindows":"\\\\.\\pipe\\.irdServer",
-    "serverPathForUNIX":"/tmp/irdServer.sock"
+    "serverPathForUNIX":"/opt/rGauge/irdTxServer_socket/irdServer.sock"
 }
