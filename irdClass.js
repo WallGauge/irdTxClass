@@ -41,26 +41,36 @@ class irTx{
         var valueAsCmd = this.encodeCmd(this._cmdList.Set_Raw_Stepper_Value, rawValue);
         if(this._lastEncodedComnmand != 0){
             console.log('recevied new command, removing previous command first');
-            this.cmdQueueRemove(this._lastEncodedComnmand);
-        }
-        this.cmdQueueAdd(valueAsCmd);
+            this._cmdQueueRemove(this._lastEncodedComnmand);
+        };
+        this._cmdQueueAdd(valueAsCmd);
         this._lastEncodedComnmand = valueAsCmd;
         console.log('Added gauge value = ' + valueToSend + ', as raw = '+ rawValue +', for device address = ' + this._deviceAddress +', as command = ' + valueAsCmd + ' to command queue.');
-    }
+    };
+
+    sendEncodedCmd(cmdToSend){
+        if(this._lastEncodedComnmand != 0){
+            console.log('recevied new command, removing previous command first');
+            this._cmdQueueRemove(this._lastEncodedComnmand);
+        };
+        this._cmdQueueAdd(cmdToSend);
+        this._lastEncodedComnmand = cmdToSend;
+        console.log('Added gauge command for device address = ' + this._deviceAddress +', as command = ' + cmdToSend + ' to command queue.');
+    };
 
     encodeCmd(cmdNum = 0, value = 0, address = this._deviceAddress){
         if(value < 0 || value > 4095){
           console.log('rGaugeEncode called with invalid value = ' + value);
           return 0;
-        }
+        };
         if(cmdNum < 0 || cmdNum > 15){
           console.log('rGaugeEncode called with invalid cmdNum = ' + cmdNum);
           return 0;
-        }
+        };
         if(address < 0 || address > 255){
           console.log('rGaugeEncode called with invalid address = ' + address);
           return 0;
-        }
+        };
       
         var x = 0;
         var y = cmdNum;
@@ -68,57 +78,58 @@ class irTx{
           x = x << 1;    
           x = x + (y & 1);
           y = y >> 1;
-        }
+        };
         var y = value;
         for (var i=0; i < 12; i++){                             // bits 5 - 15 hold the data value, range = 0 to 4095
           x = x << 1;    
           x = x + (y & 1);
           y = y >> 1;
-        }
+        };
         var y = address;
         for (var i=0; i < 8; i++){                              // bits 17 - 24 = address of device, range = 0 to 255
           x = x << 1;    
           x = x + (y & 1);
           y = y >> 1;
-        }        
+        };        
         var y = address;
         for (var i=0; i < 8; i++){                              // bits 25 - 32 = not of device address
           x = x << 1;    
           x = x + (~y & 1);
           y = y >> 1;
-        }
+        };
         var adnMask = x;
         return x;
-    }
+    };
+
+    
+    isServerConncted(){
+        return serverConnected;
+    };
       
-    cmdQueueAdd(encodedCommand, txCount = 14, modFreq = this._modFrequency, pwmPin = this._pwmPin){
+    _cmdQueueAdd(encodedCommand, txCount = 14, modFreq = this._modFrequency, pwmPin = this._pwmPin){
         console.log('sending new cmdQueueAdd to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'addCmd', encodedCommand:encodedCommand, txCount:txCount, modFreq:modFreq, pwmPin:pwmPin});
         stream.write(cmdAsStr);
-    }
+    };
 
-    cmdQueueRemove(encodedCommandToRemove){
+    _cmdQueueRemove(encodedCommandToRemove){
         console.log('sending new cmdQueueRemove to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'removeCmd', encodedCommand:encodedCommandToRemove});
         stream.write(cmdAsStr);
-    }
+    };
 
-    cmdQueueClear(){
+    _cmdQueueClear(){
         console.log('sending new cmdQueueClear to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'clearCmdQueue'});
         stream.write(cmdAsStr);
-    }
+    };
 
-    cmdQueueDump(){
+    _cmdQueueDump(){
         console.log('sending new cmdQueueDump to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'dumpCmdQueue'});
         stream.write(cmdAsStr);
-    }
-
-    isServerConncted(){
-        return serverConnected;
-    }
-}
+    };
+};
 
 function getCalibratedValue(intVal=0, calibrationTable=[[0,0],[50,250]]){ 
     var cTable = calibrationTable;
