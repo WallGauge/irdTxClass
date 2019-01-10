@@ -53,9 +53,15 @@ class irTx{
             console.log('recevied new command, removing previous command first');
             this._cmdQueueRemove(this._lastEncodedComnmand);
         };
-        this._cmdQueueAdd(cmdToSend);
+        if(cmdToSend != 0){
+            this._cmdQueueAdd(cmdToSend);
+            console.log('Added gauge command for device address = ' + this._deviceAddress +', as command = ' + cmdToSend + ' to command queue.');
+        }else {
+            console.log('sendEndodedCmd called with value = 0 skipping server tx.');
+        };
+
         this._lastEncodedComnmand = cmdToSend;
-        console.log('Added gauge command for device address = ' + this._deviceAddress +', as command = ' + cmdToSend + ' to command queue.');
+        
     };
 
     encodeCmd(cmdNum = 0, value = 0, address = this._deviceAddress){
