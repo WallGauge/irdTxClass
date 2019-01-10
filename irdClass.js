@@ -15,11 +15,12 @@ const rgaugeDfltCmds = {
     Check_Battery_Voltage   :0,
     Reset                   :1,
     Zero_Needle             :2,
+    Set_Gauge_Address       :3,
     Set_Wake_duration       :4,
     Set_Sleep_duration      :5,
     Start_sleep_in_seconds  :6,
-    Sleep_for_minutes       :7,
     Set_Raw_Stepper_Value   :8,
+    Identifify              :15
 }
 
 connectToServer();
