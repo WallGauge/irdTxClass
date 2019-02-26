@@ -113,13 +113,13 @@ class irTx{
     };
       
     _cmdQueueAdd(encodedCommand, txCount = 14, modFreq = this._modFrequency, pwmPin = this._pwmPin){
-        console.log('sending new cmdQueueAdd to irdServer.');
+        //console.log('sending new cmdQueueAdd to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'addCmd', encodedCommand:encodedCommand, txCount:txCount, modFreq:modFreq, pwmPin:pwmPin});
         stream.write(cmdAsStr);
     };
 
     _cmdQueueRemove(encodedCommandToRemove){
-        console.log('sending new cmdQueueRemove to irdServer.');
+        //console.log('sending new cmdQueueRemove to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'removeCmd', encodedCommand:encodedCommandToRemove});
         stream.write(cmdAsStr);
     };
