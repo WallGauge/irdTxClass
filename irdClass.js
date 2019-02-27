@@ -40,7 +40,7 @@ class irTx{
         var rawValue = getCalibratedValue(valueToSend, this._calibrationTable);
         var valueAsCmd = this.encodeCmd(this._cmdList.Set_Raw_Stepper_Value, rawValue);
         if(this._lastEncodedComnmand != 0){
-            console.log('recevied new command, removing previous command first');
+            //console.log('recevied new command, removing previous command first');
             this._cmdQueueRemove(this._lastEncodedComnmand);
         };
         this._cmdQueueAdd(valueAsCmd);
@@ -50,7 +50,7 @@ class irTx{
 
     sendEncodedCmd(cmdToSend){
         if(this._lastEncodedComnmand != 0){
-            console.log('recevied new command, removing previous command first');
+            //console.log('recevied new command, removing previous command first');
             this._cmdQueueRemove(this._lastEncodedComnmand);
         };
         if(cmdToSend != 0){
