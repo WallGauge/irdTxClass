@@ -48,6 +48,14 @@ class irTx{
         console.log('Added gauge value = ' + valueToSend + ', as raw = '+ rawValue +', for device address = ' + this._deviceAddress +', as command = ' + valueAsCmd + ' to command queue.');
     };
 
+    removeLastValue(){
+        if(this._lastEncodedComnmand != 0){
+            console.log('Removing previous command in irTx queue');
+            this._cmdQueueRemove(this._lastEncodedComnmand);
+            _lastEncodedComnmand = 0;
+        };
+    };
+
     sendEncodedCmd(cmdToSend){
         if(this._lastEncodedComnmand != 0){
             //console.log('recevied new command, removing previous command first');
