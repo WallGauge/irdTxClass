@@ -1,5 +1,4 @@
 var net =           require('net');
-var cp =            require('child_process');
 var serverCfg =     require('./serverConfig.json');
 
 var ipcPath = serverCfg.serverPathForUNIX;
@@ -20,12 +19,28 @@ const rgaugeDfltCmds = {
     Set_Sleep_duration      :5,
     Start_sleep_in_seconds  :6,
     Set_Raw_Stepper_Value   :8,
+    Led_on                  :9,
+    Led_off                 :10,
     Identifify              :15
 }
 
 connectToServer();
 
-//Class Setup
+/**
+ * This class is used to submit gauge data to the irdTxServer over a UNIX domain socket.  The socket path is set in the ./serverConfig.json file.
+ * The irdTxServer that receives this data will place the command into a broadcast queue and manages the packet from there. 
+ * 
+ * Required fields for construction:
+ * deviceAddress: This is the address the battery powered wall gauge will respond to. 
+ * calibrationTable: Each gauge type has a unique calibration table to match raw stepper values to the gauge face. 
+ * This table must be passed to this class during construction. See testMe.js for an example.
+ * 
+ * @param {number} deviceAddress The wall gauges pre-programed address from 0 to 255.  170 is broadcast address.
+ * @param {array} calibrationTable Array of display values and corresponding raw stepper values for gauge face.
+ * @param {number} frq defaults to 33000.  This is the modulation frequency used by the infrared receiver in the gauge.
+ * @param {number} pin defaults to 18. This is the pin that is connected to the infra red LED circuit using BCM numbering schema.
+ * @param {object} dftCmds defaults to the rgaugeDfltCmds object that contains of commands and corresponding command number.
+ */
 class irTx{
     constructor(deviceAddress = 1, calibrationTable = calibration, frq = modulationFreq, pin = hardwarePwmBcmPin, dftCmds = rgaugeDfltCmds){
         this._pwmPin = pin;
@@ -36,11 +51,18 @@ class irTx{
         this._lastEncodedComnmand = 0;
     }
 
+    /** Sends value (on gauge face) to irdTxServer for transmission to gauge.
+     * This method converts the value passed to it to a raw stepper value based on this gauge's calibration table.
+     * It will then encasplate the raw stepper value into a command packet and submit it to the irdTxServer over UNIX domain socket for transmission. 
+     * The irdTxServer will place this command packet in a broadcast queue and retransmit it every second unitl a timeout or another value is sent.
+     * If a new gauge value is sent before the previous command times out it will be deleted out of the broadcast queue before the new value is sent. 
+     * 
+     * @param {number} valueToSend value on gauge face to move the gauge needle to.
+     */
     sendValue(valueToSend){
         var rawValue = getCalibratedValue(valueToSend, this._calibrationTable);
         var valueAsCmd = this.encodeCmd(this._cmdList.Set_Raw_Stepper_Value, rawValue);
         if(this._lastEncodedComnmand != 0){
-            //console.log('recevied new command, removing previous command first');
             this._cmdQueueRemove(this._lastEncodedComnmand);
         };
         this._cmdQueueAdd(valueAsCmd);
@@ -48,17 +70,25 @@ class irTx{
         console.log('Added gauge value = ' + valueToSend + ', as raw = '+ rawValue +', for device address = ' + this._deviceAddress +', as command = ' + valueAsCmd + ' to command queue.');
     };
 
+    /** removes the last value sent to the irdTxServer from its transmit queue
+     */
     removeLastValue(){
         if(this._lastEncodedComnmand != 0){
-            console.log('Removing previous command in irTx queue');
             this._cmdQueueRemove(this._lastEncodedComnmand);
             _lastEncodedComnmand = 0;
         };
     };
 
+    /** sends an encoded command to irdTxServer
+     * This method must be passed an encoded gauge command that can be beamed buy the irdTxServer.
+     * An encoded command inclueds gague address, command and command value.
+     * Use the encodeCmd method to create an encoded value to pass this method. 
+     * Removes previous encoded command before sending the new one.
+     *
+     * @param {number} cmdToSend encoded command from encodeCmd method.
+     */
     sendEncodedCmd(cmdToSend){
         if(this._lastEncodedComnmand != 0){
-            //console.log('recevied new command, removing previous command first');
             this._cmdQueueRemove(this._lastEncodedComnmand);
         };
         if(cmdToSend != 0){
@@ -67,11 +97,17 @@ class irTx{
         }else {
             console.log('sendEndodedCmd called with value = 0 skipping server tx.');
         };
-
         this._lastEncodedComnmand = cmdToSend;
-        
     };
 
+    /** returns an encoded command as an integer 
+     * Creates a single packet (integer number) that can be beamed directly to a battery powered gague.
+     * Use sendEncodeCmd method to send this value to the irdTxServer for transmission. 
+     * 
+     * @param {number} cmdNum = (0 to 15) see this._cmdList for a list of commands
+     * @param {number} value = (0 to 4095) value for the command. If the command = 8 then this will be the raw stepper value to move to
+     * @param {number} address = (0 to 255) address of the battery powered gauge
+     */
     encodeCmd(cmdNum = 0, value = 0, address = this._deviceAddress){
         if(value < 0 || value > 4095){
           console.log('rGaugeEncode called with invalid value = ' + value);
@@ -88,7 +124,7 @@ class irTx{
       
         var x = 0;
         var y = cmdNum;
-        for (var i=0; i < 4; i++){                              // bits 1 - 4 hold the command, range = 0 to 16
+        for (var i=0; i < 4; i++){                              // bits 1 - 4 hold the command, range = 0 to 15
           x = x << 1;    
           x = x + (y & 1);
           y = y >> 1;
@@ -115,19 +151,19 @@ class irTx{
         return x;
     };
 
-    
+    /** Returns true if irdTxServer is connected.
+     * 
+     */
     isServerConncted(){
         return serverConnected;
     };
       
     _cmdQueueAdd(encodedCommand, txCount = 14, modFreq = this._modFrequency, pwmPin = this._pwmPin){
-        //console.log('sending new cmdQueueAdd to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'addCmd', encodedCommand:encodedCommand, txCount:txCount, modFreq:modFreq, pwmPin:pwmPin});
         stream.write(cmdAsStr);
     };
 
     _cmdQueueRemove(encodedCommandToRemove){
-        //console.log('sending new cmdQueueRemove to irdServer.');
         var cmdAsStr = JSON.stringify({cmd:'removeCmd', encodedCommand:encodedCommandToRemove});
         stream.write(cmdAsStr);
     };
@@ -192,7 +228,7 @@ function connectToServer(){
         switch(dta){
             case '__disconnect':
                 serverConnected = false;
-                console.log('irdTxServer issued a disconnect!!')
+                console.log('irdTxServer issued a disconnect!!');
                 process.exit(0);
                 break;
 
