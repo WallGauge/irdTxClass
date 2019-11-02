@@ -19,8 +19,8 @@ const rgaugeDfltCmds = {
     Set_Sleep_duration      :5,
     Start_sleep_in_seconds  :6,
     Set_Raw_Stepper_Value   :8,
-    Led_on                  :9,
-    Led_off                 :10,
+    Set_Raw_Value_awake     :9,
+    Led_on                  :10,
     Identifify              :15
 }
 
