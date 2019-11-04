@@ -75,7 +75,7 @@ class irTx{
     removeLastValue(){
         if(this._lastEncodedComnmand != 0){
             this._cmdQueueRemove(this._lastEncodedComnmand);
-            _lastEncodedComnmand = 0;
+            this._lastEncodedComnmand = 0;
         };
     };
 
