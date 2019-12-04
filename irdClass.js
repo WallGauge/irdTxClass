@@ -24,7 +24,7 @@ const rgaugeDfltCmds = {
     Identifify              :15
 }
 
-connectToServer();
+//connectToServer();
 
 /**
  * This class is used to submit gauge data to the irdTxServer over a UNIX domain socket.  The socket path is set in the ./serverConfig.json file.
@@ -49,6 +49,7 @@ class irTx{
         this._deviceAddress = deviceAddress;
         this._calibrationTable = calibrationTable;
         this._lastEncodedComnmand = 0;
+        connectToServer();
     }
 
     /** Sends value (on gauge face) to irdTxServer for transmission to gauge.
