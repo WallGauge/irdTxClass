@@ -1,6 +1,6 @@
 {
   "name": "irdtxclass",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Sends data to irdServer over UNIX IPC",
   "main": "irdClass.js",
   "scripts": {
