@@ -1,7 +1,5 @@
 
-# irdTxServer
-
-The contents of this GitHub repository are the intellectual property of WallGauge.com (a division of Solar-Current.com).
+# irdTxClass
 
 ## Overview
 
