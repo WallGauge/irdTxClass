@@ -260,8 +260,8 @@ function reconnectServer() {
     }, secToReconnect * 1000);
 }
 
+module.exports = irTx;
+
 function logit(txt = '') {
     logit(logPrefix + txt)
 };
-
-module.exports = irTx;
