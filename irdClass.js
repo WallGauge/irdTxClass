@@ -68,7 +68,7 @@ class irTx {
         };
         this._cmdQueueAdd(valueAsCmd);
         this._lastEncodedComnmand = valueAsCmd;
-        console.debug('Added gauge value = ' + valueToSend + ', as raw = ' + rawValue + ', for device address = ' + this._deviceAddress + ', as command = ' + valueAsCmd + ' to command queue.');
+        logit('Added gauge value = ' + valueToSend + ', as raw = ' + rawValue + ', for device address = ' + this._deviceAddress + ', as command = ' + valueAsCmd + ' to command queue.');
     };
 
     /** removes the last value sent to the irdTxServer from its transmit queue
@@ -94,9 +94,9 @@ class irTx {
         };
         if (cmdToSend != 0) {
             this._cmdQueueAdd(cmdToSend);
-            console.debug('Added gauge command for device address = ' + this._deviceAddress + ', as command = ' + cmdToSend + ' to command queue.');
+            logit('Added gauge command for device address = ' + this._deviceAddress + ', as command = ' + cmdToSend + ' to command queue.');
         } else {
-            console.debug('sendEndodedCmd called with value = 0 skipping server tx.');
+            logit('sendEndodedCmd called with value = 0 skipping server tx.');
         };
         this._lastEncodedComnmand = cmdToSend;
     };
@@ -111,15 +111,15 @@ class irTx {
      */
     encodeCmd(cmdNum = 0, value = 0, address = this._deviceAddress) {
         if (value < 0 || value > 4095) {
-            console.debug('rGaugeEncode called with invalid value = ' + value);
+            logit('rGaugeEncode called with invalid value = ' + value);
             return 0;
         };
         if (cmdNum < 0 || cmdNum > 15) {
-            console.debug('rGaugeEncode called with invalid cmdNum = ' + cmdNum);
+            logit('rGaugeEncode called with invalid cmdNum = ' + cmdNum);
             return 0;
         };
         if (address < 0 || address > 255) {
-            console.debug('rGaugeEncode called with invalid address = ' + address);
+            logit('rGaugeEncode called with invalid address = ' + address);
             return 0;
         };
 
@@ -170,13 +170,13 @@ class irTx {
     };
 
     _cmdQueueClear() {
-        console.debug('sending new cmdQueueClear to irdServer.');
+        logit('sending new cmdQueueClear to irdServer.');
         var cmdAsStr = JSON.stringify({ cmd: 'clearCmdQueue' });
         stream.write(cmdAsStr);
     };
 
     _cmdQueueDump() {
-        console.debug('sending new cmdQueueDump to irdServer.');
+        logit('sending new cmdQueueDump to irdServer.');
         var cmdAsStr = JSON.stringify({ cmd: 'dumpCmdQueue' });
         stream.write(cmdAsStr);
     };
@@ -235,12 +235,12 @@ function connectToServer() {
 
             case '__connected':
                 serverConnected = true;
-                console.debug('irdTxServer connected!');
+                logit('irdTxServer connected!');
                 break;
 
             default:
                 console.warn('Received an unknown command from irdTxServer:');
-                console.debug(dta);
+                logit(dta);
                 break;
         }
     });
@@ -254,7 +254,7 @@ function connectToServer() {
 
 function reconnectServer() {
     var secToReconnect = 15;
-    console.debug('Reconnectiong server in ' + secToReconnect + ' seconds.');
+    logit('Reconnectiong server in ' + secToReconnect + ' seconds.');
     setTimeout(function () {
         connectToServer();
     }, secToReconnect * 1000);
@@ -263,5 +263,5 @@ function reconnectServer() {
 module.exports = irTx;
 
 function logit(txt = '') {
-    logit(logPrefix + txt)
+    console.debug(logPrefix + txt)
 };
