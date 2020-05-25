@@ -1,5 +1,5 @@
-const net = require('net');
-const serverCfg = require('./serverConfig.json');
+var net = require('net');
+var serverCfg = require('./serverConfig.json');
 
 const logPrefix = 'irdClass.js | ';
 
