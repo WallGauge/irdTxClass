@@ -221,7 +221,7 @@ function findLowIndex(target, calibrationTable = [[0, 0], [50, 250]]) {
     Stream setup for irTxServer over UNIX IPC 
 */
 function connectToServer() {
-    logit('Conneting to infrared tx server on IPC path ' + ipcPath);
+    logit('Conneting to infrared tx server on IPC path ' + ipcPath.toString());
     stream = net.connect(ipcPath);
 
     stream.on('data', function (dtaFromServer) {
