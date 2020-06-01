@@ -13,7 +13,5 @@
   "author": "John Rucker",
   "license": "MIT",
   "homepage": "https://WallGauge.com",
-  "dependencies": {
-
-  }
+  "dependencies": {}
 }
