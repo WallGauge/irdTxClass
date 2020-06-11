@@ -11,6 +11,7 @@ var serverConnected = false;
 const hardwarePwmBcmPin = 18;
 const modulationFreq = 33000;
 const calibration = [[0, 0], [25, 155], [50, 310], [75, 460], [100, 620]];
+const subscriptionExpiredRawStepper = 630;
 
 const rgaugeDfltCmds = {
     Check_Battery_Voltage: 0,
@@ -69,6 +70,20 @@ class irTx {
         this._cmdQueueAdd(valueAsCmd);
         this._lastEncodedComnmand = valueAsCmd;
         logit('Added gauge value = ' + valueToSend + ', as raw = ' + rawValue + ', for device address = ' + this._deviceAddress + ', as command = ' + valueAsCmd + ' to command queue.');
+    };
+
+    /** Sets the gauge to the subscription expired position on the gauge face.
+     * 
+     */
+    setSubscriptionExpired(){
+        var rawValue = subscriptionExpiredRawStepper;
+        var valueAsCmd = this.encodeCmd(this._cmdList.Set_Raw_Stepper_Value, rawValue);
+        if (this._lastEncodedComnmand != 0) {
+            this._cmdQueueRemove(this._lastEncodedComnmand);
+        };
+        this._cmdQueueAdd(valueAsCmd);
+        this._lastEncodedComnmand = valueAsCmd;
+        logit('ALERT! Subscripton Expired, setting gauge to notify user: raw = ' + rawValue + ', for device address = ' + this._deviceAddress + ', as command = ' + valueAsCmd + ' to command queue.'); 
     };
 
     /** removes the last value sent to the irdTxServer from its transmit queue
